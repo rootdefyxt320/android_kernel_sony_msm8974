@@ -269,7 +269,7 @@ unsigned int get_rq_info(void)
         return rq;
 }
 EXPORT_SYMBOL(get_rq_info);
-#endif 
+#endif
 
 static void def_work_fn(struct work_struct *work)
 {

@@ -5,7 +5,10 @@
  *            (C)  2003 Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>.
  *                      Jun Nakajima <jun.nakajima@intel.com>
  *            (C)  2012 Paul Reioux <reioux@gmail.com>
+<<<<<<< HEAD
  *            (C)  2013 Paul Reioux <reioux@gmail.com>
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -32,11 +35,15 @@
 #endif
 #include <linux/rq_stats.h>
 
+<<<<<<< HEAD
 #include <linux/syscalls.h>
 #include <linux/highuid.h>
 
 #define INTELLIDEMAND_MAJOR_VERSION	4
 #define INTELLIDEMAND_MINOR_VERSION	2
+=======
+#define INTELLIDEMAND_VERSION	3.0
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 /*
  * dbs is used in this file as a shortform for demandbased switching
@@ -44,16 +51,25 @@
  */
 
 #define DEF_FREQUENCY_DOWN_DIFFERENTIAL		(10)
+<<<<<<< HEAD
 #define DEF_FREQUENCY_UP_THRESHOLD		(75)
 #define DEF_SAMPLING_DOWN_FACTOR		(1)
 #define BOOSTED_SAMPLING_DOWN_FACTOR		(10)
 #define MAX_SAMPLING_DOWN_FACTOR		(100000)
 #define MICRO_FREQUENCY_DOWN_DIFFERENTIAL	(3)
 #define MICRO_FREQUENCY_UP_THRESHOLD		(75)
+=======
+#define DEF_FREQUENCY_UP_THRESHOLD		(80)
+#define DEF_SAMPLING_DOWN_FACTOR		(1)
+#define MAX_SAMPLING_DOWN_FACTOR		(100000)
+#define MICRO_FREQUENCY_DOWN_DIFFERENTIAL	(3)
+#define MICRO_FREQUENCY_UP_THRESHOLD		(95)
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 #define MICRO_FREQUENCY_MIN_SAMPLE_RATE		(15000)
 #define MIN_FREQUENCY_UP_THRESHOLD		(11)
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
 #define MIN_FREQUENCY_DOWN_DIFFERENTIAL		(1)
+<<<<<<< HEAD
 #define DEFAULT_FREQ_BOOST_TIME			(2500000)
 #define DEF_SAMPLING_RATE			(50000)
 #define BOOSTED_SAMPLING_RATE			(15000)
@@ -62,6 +78,11 @@
 #define DBS_OPTIMAL_FREQ			(1296000)
 
 static u64 freq_boosted_time;
+=======
+#define DEF_SAMPLING_RATE			(30000)
+#define DBS_INPUT_EVENT_MIN_FREQ		(810000)
+
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 /*
  * The polling frequency of this governor depends on the capability of
  * the processor. Default polling frequency is 1000 times the transition
@@ -80,12 +101,17 @@ static unsigned long stored_sampling_rate;
 #endif
 
 #define LATENCY_MULTIPLIER			(1000)
+<<<<<<< HEAD
 #define MIN_LATENCY_MULTIPLIER			(20)
+=======
+#define MIN_LATENCY_MULTIPLIER			(100)
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 #define TRANSITION_LATENCY_LIMIT		(10 * 1000 * 1000)
 
 #define POWERSAVE_BIAS_MAXLEVEL			(1000)
 #define POWERSAVE_BIAS_MINLEVEL			(-1000)
 
+<<<<<<< HEAD
 /* have the timer rate booted for this much time 2.5s*/
 #define TIMER_RATE_BOOST_TIME 2500000
 static int sampling_rate_boosted;
@@ -96,6 +122,8 @@ static unsigned int current_sampling_rate;
 static unsigned int saved_policy_min;
 #endif
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 static void do_dbs_timer(struct work_struct *work);
 static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 				unsigned int event);
@@ -125,8 +153,11 @@ struct cpu_dbs_info_s {
 	unsigned int freq_lo_jiffies;
 	unsigned int freq_hi_jiffies;
 	unsigned int rate_mult;
+<<<<<<< HEAD
 	unsigned int prev_load;
 	unsigned int max_load;
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	int cpu;
 	unsigned int sample_type:1;
 	/*
@@ -136,7 +167,11 @@ struct cpu_dbs_info_s {
 	 */
 	struct mutex timer_mutex;
 };
+<<<<<<< HEAD
 static DEFINE_PER_CPU(struct cpu_dbs_info_s, id_cpu_dbs_info);
+=======
+static DEFINE_PER_CPU(struct cpu_dbs_info_s, od_cpu_dbs_info);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 static inline void dbs_timer_init(struct cpu_dbs_info_s *dbs_info);
 static inline void dbs_timer_exit(struct cpu_dbs_info_s *dbs_info);
@@ -150,26 +185,35 @@ static DEFINE_MUTEX(dbs_mutex);
 
 static struct workqueue_struct *input_wq;
 
+<<<<<<< HEAD
 struct dbs_work_struct {
 	struct work_struct work;
 	unsigned int cpu;
 };
 
 static DEFINE_PER_CPU(struct dbs_work_struct, dbs_refresh_work);
+=======
+static DEFINE_PER_CPU(struct work_struct, dbs_refresh_work);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 static struct dbs_tuners {
 	unsigned int sampling_rate;
 	unsigned int up_threshold;
+<<<<<<< HEAD
 	unsigned int up_threshold_multi_core;
 	unsigned int down_differential;
 	unsigned int down_differential_multi_core;
 	unsigned int optimal_freq;
 	unsigned int up_threshold_any_cpu_load;
 	unsigned int sync_freq;
+=======
+	unsigned int down_differential;
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	unsigned int ignore_nice;
 	unsigned int sampling_down_factor;
 	int          powersave_bias;
 	unsigned int io_is_busy;
+<<<<<<< HEAD
 	unsigned int boosted;
 	unsigned int freq_boost_time;
 	unsigned int boostfreq;
@@ -186,6 +230,15 @@ static struct dbs_tuners {
 	.sync_freq = DBS_SYNC_FREQ,
 	.optimal_freq = DBS_OPTIMAL_FREQ,
 	.freq_boost_time = DEFAULT_FREQ_BOOST_TIME,
+=======
+	unsigned int two_phase_freq;
+} dbs_tuners_ins = {
+	.up_threshold = DEF_FREQUENCY_UP_THRESHOLD,
+	.sampling_down_factor = DEF_SAMPLING_DOWN_FACTOR,
+	.down_differential = DEF_FREQUENCY_DOWN_DIFFERENTIAL,
+	.ignore_nice = 0,
+	.powersave_bias = 0,
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	.two_phase_freq = 0,
 };
 
@@ -214,12 +267,19 @@ static inline cputime64_t get_cpu_idle_time_jiffy(unsigned int cpu,
 
 static inline cputime64_t get_cpu_idle_time(unsigned int cpu, cputime64_t *wall)
 {
+<<<<<<< HEAD
 	u64 idle_time = get_cpu_idle_time_us(cpu, NULL);
 
 	if (idle_time == -1ULL)
 		return get_cpu_idle_time_jiffy(cpu, wall);
 	else
 		idle_time += get_cpu_iowait_time_us(cpu, wall);
+=======
+	u64 idle_time = get_cpu_idle_time_us(cpu, wall);
+
+	if (idle_time == -1ULL)
+		return get_cpu_idle_time_jiffy(cpu, wall);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 	return idle_time;
 }
@@ -248,7 +308,11 @@ static unsigned int powersave_bias_target(struct cpufreq_policy *policy,
 	unsigned int index = 0;
 	unsigned int jiffies_total, jiffies_hi, jiffies_lo;
 	int freq_reduc;
+<<<<<<< HEAD
 	struct cpu_dbs_info_s *dbs_info = &per_cpu(id_cpu_dbs_info,
+=======
+	struct cpu_dbs_info_s *dbs_info = &per_cpu(od_cpu_dbs_info,
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 						   policy->cpu);
 
 	if (!dbs_info->freq_table) {
@@ -312,7 +376,11 @@ static int intellidemand_powersave_bias_setspeed(struct cpufreq_policy *policy,
 
 static void intellidemand_powersave_bias_init_cpu(int cpu)
 {
+<<<<<<< HEAD
 	struct cpu_dbs_info_s *dbs_info = &per_cpu(id_cpu_dbs_info, cpu);
+=======
+	struct cpu_dbs_info_s *dbs_info = &per_cpu(od_cpu_dbs_info, cpu);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	dbs_info->freq_table = cpufreq_frequency_get_table(cpu);
 	dbs_info->freq_lo = 0;
 }
@@ -345,6 +413,7 @@ static ssize_t show_##file_name						\
 show_one(sampling_rate, sampling_rate);
 show_one(io_is_busy, io_is_busy);
 show_one(up_threshold, up_threshold);
+<<<<<<< HEAD
 show_one(up_threshold_multi_core, up_threshold_multi_core);
 show_one(down_differential, down_differential);
 show_one(sampling_down_factor, sampling_down_factor);
@@ -355,6 +424,11 @@ show_one(sync_freq, sync_freq);
 show_one(boostpulse, boosted);
 show_one(boosttime, freq_boost_time);
 show_one(boostfreq, boostfreq);
+=======
+show_one(down_differential, down_differential);
+show_one(sampling_down_factor, sampling_down_factor);
+show_one(ignore_nice_load, ignore_nice);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 show_one(two_phase_freq, two_phase_freq);
 
 #ifdef CONFIG_CPUFREQ_LIMIT_MAX_FREQ 
@@ -406,6 +480,7 @@ static ssize_t show_powersave_bias
 	return snprintf(buf, PAGE_SIZE, "%d\n", dbs_tuners_ins.powersave_bias);
 }
 
+<<<<<<< HEAD
 static ssize_t store_boosttime(struct kobject *kobj, struct attribute *attr,
 				const char *buf, size_t count)
 {
@@ -458,6 +533,8 @@ static ssize_t store_boostfreq(struct kobject *a, struct attribute *b,
 	return count;
 }
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 /**
  * update_sampling_rate - update sampling rate effective immediately if needed.
  * @new_rate: new sampling rate
@@ -486,7 +563,11 @@ static void update_sampling_rate(unsigned int new_rate)
 		policy = cpufreq_cpu_get(cpu);
 		if (!policy)
 			continue;
+<<<<<<< HEAD
 		dbs_info = &per_cpu(id_cpu_dbs_info, policy->cpu);
+=======
+		dbs_info = &per_cpu(od_cpu_dbs_info, policy->cpu);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		cpufreq_cpu_put(policy);
 
 		mutex_lock(&dbs_info->timer_mutex);
@@ -523,7 +604,10 @@ static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
 	if (ret != 1)
 		return -EINVAL;
 	update_sampling_rate(input);
+<<<<<<< HEAD
 	current_sampling_rate = dbs_tuners_ins.sampling_rate;
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	return count;
 }
 
@@ -541,6 +625,7 @@ static ssize_t store_two_phase_freq(struct kobject *a, struct attribute *b,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t store_sync_freq(struct kobject *a, struct attribute *b,
 				   const char *buf, size_t count)
 {
@@ -554,6 +639,8 @@ static ssize_t store_sync_freq(struct kobject *a, struct attribute *b,
 	return count;
 }
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 static ssize_t store_io_is_busy(struct kobject *a, struct attribute *b,
 				   const char *buf, size_t count)
 {
@@ -567,6 +654,7 @@ static ssize_t store_io_is_busy(struct kobject *a, struct attribute *b,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t store_optimal_freq(struct kobject *a, struct attribute *b,
 				   const char *buf, size_t count)
 {
@@ -580,6 +668,8 @@ static ssize_t store_optimal_freq(struct kobject *a, struct attribute *b,
 	return count;
 }
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 static ssize_t store_up_threshold(struct kobject *a, struct attribute *b,
 				  const char *buf, size_t count)
 {
@@ -595,6 +685,7 @@ static ssize_t store_up_threshold(struct kobject *a, struct attribute *b,
 	return count;
 }
 
+<<<<<<< HEAD
 static ssize_t store_up_threshold_multi_core(struct kobject *a,
 			struct attribute *b, const char *buf, size_t count)
 {
@@ -625,6 +716,8 @@ static ssize_t store_up_threshold_any_cpu_load(struct kobject *a,
 	return count;
 }
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 static ssize_t store_down_differential(struct kobject *a, struct attribute *b,
 		const char *buf, size_t count)
 {
@@ -656,7 +749,11 @@ static ssize_t store_sampling_down_factor(struct kobject *a,
 	/* Reset down sampling multiplier in case it was active */
 	for_each_online_cpu(j) {
 		struct cpu_dbs_info_s *dbs_info;
+<<<<<<< HEAD
 		dbs_info = &per_cpu(id_cpu_dbs_info, j);
+=======
+		dbs_info = &per_cpu(od_cpu_dbs_info, j);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		dbs_info->rate_mult = 1;
 	}
 	return count;
@@ -685,7 +782,11 @@ static ssize_t store_ignore_nice_load(struct kobject *a, struct attribute *b,
 	/* we need to re-evaluate prev_cpu_idle */
 	for_each_online_cpu(j) {
 		struct cpu_dbs_info_s *dbs_info;
+<<<<<<< HEAD
 		dbs_info = &per_cpu(id_cpu_dbs_info, j);
+=======
+		dbs_info = &per_cpu(od_cpu_dbs_info, j);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		dbs_info->prev_cpu_idle = get_cpu_idle_time(j,
 						&dbs_info->prev_cpu_wall);
 		if (dbs_tuners_ins.ignore_nice)
@@ -736,7 +837,11 @@ static ssize_t store_powersave_bias(struct kobject *a, struct attribute *b,
 				if (lock_policy_rwsem_write(cpu) < 0)
 					continue;
 
+<<<<<<< HEAD
 				dbs_info = &per_cpu(id_cpu_dbs_info, cpu);
+=======
+				dbs_info = &per_cpu(od_cpu_dbs_info, cpu);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 				for_each_cpu(j, &cpus_timer_done) {
 					if (!dbs_info->cur_policy) {
@@ -767,7 +872,11 @@ skip_this_cpu:
 			if (lock_policy_rwsem_write(cpu) < 0)
 				continue;
 
+<<<<<<< HEAD
 			dbs_info = &per_cpu(id_cpu_dbs_info, cpu);
+=======
+			dbs_info = &per_cpu(od_cpu_dbs_info, cpu);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 			for_each_cpu(j, &cpus_timer_done) {
 				if (!dbs_info->cur_policy) {
@@ -896,6 +1005,7 @@ define_one_global_rw(down_differential);
 define_one_global_rw(sampling_down_factor);
 define_one_global_rw(ignore_nice_load);
 define_one_global_rw(powersave_bias);
+<<<<<<< HEAD
 define_one_global_rw(up_threshold_multi_core);
 define_one_global_rw(optimal_freq);
 define_one_global_rw(up_threshold_any_cpu_load);
@@ -903,6 +1013,8 @@ define_one_global_rw(sync_freq);
 define_one_global_rw(boostpulse);
 define_one_global_rw(boosttime);
 define_one_global_rw(boostfreq);
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 define_one_global_rw(two_phase_freq);
 
 #ifdef CONFIG_CPUFREQ_LIMIT_MAX_FREQ
@@ -922,6 +1034,7 @@ static struct attribute *dbs_attributes[] = {
 	&ignore_nice_load.attr,
 	&powersave_bias.attr,
 	&io_is_busy.attr,
+<<<<<<< HEAD
 	&up_threshold_multi_core.attr,
 	&optimal_freq.attr,
 	&up_threshold_any_cpu_load.attr,
@@ -929,6 +1042,8 @@ static struct attribute *dbs_attributes[] = {
 	&boostpulse.attr,
 	&boosttime.attr,
 	&boostfreq.attr,
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	&two_phase_freq.attr,
 #ifdef CONFIG_CPUFREQ_LIMIT_MAX_FREQ
 	&lmf_browser.attr,
@@ -966,12 +1081,17 @@ int id_set_two_phase_freq(int cpufreq)
 
 static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 {
+<<<<<<< HEAD
 	/* Extrapolated load of this CPU */
 	unsigned int load_at_max_freq = 0;
 	unsigned int max_load_freq;
 	/* Current load across this CPU */
 	unsigned int cur_load = 0;
 	unsigned int max_load_other_cpu = 0;
+=======
+	unsigned int max_load_freq;
+
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	struct cpufreq_policy *policy;
 	unsigned int j;
 	static unsigned int phase = 0;
@@ -980,6 +1100,7 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 	this_dbs_info->freq_lo = 0;
 	policy = this_dbs_info->cur_policy;
 
+<<<<<<< HEAD
 	/* Only core0 controls the boost */
 	if (dbs_tuners_ins.boosted && policy->cpu == 0) {
 		if (ktime_to_us(ktime_get()) - freq_boosted_time >=
@@ -998,6 +1119,8 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		}
 	}
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	/*
 	 * Every sampling_rate, we check, if current idle time is less
 	 * than 20% (default), then we try to increase frequency
@@ -1017,10 +1140,17 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		struct cpu_dbs_info_s *j_dbs_info;
 		cputime64_t cur_wall_time, cur_idle_time, cur_iowait_time;
 		unsigned int idle_time, wall_time, iowait_time;
+<<<<<<< HEAD
 		unsigned int load_freq;
 		int freq_avg;
 
 		j_dbs_info = &per_cpu(id_cpu_dbs_info, j);
+=======
+		unsigned int load, load_freq;
+		int freq_avg;
+
+		j_dbs_info = &per_cpu(od_cpu_dbs_info, j);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 		cur_idle_time = get_cpu_idle_time(j, &cur_wall_time);
 		cur_iowait_time = get_cpu_iowait_time(j, &cur_wall_time);
@@ -1038,7 +1168,11 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		j_dbs_info->prev_cpu_iowait = cur_iowait_time;
 
 		if (dbs_tuners_ins.ignore_nice) {
+<<<<<<< HEAD
 			u64 cur_nice;
+=======
+			cputime64_t cur_nice;
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 			unsigned long cur_nice_jiffies;
 
 			cur_nice = kcpustat_cpu(j).cpustat[CPUTIME_NICE] -
@@ -1067,18 +1201,28 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		if (unlikely(!wall_time || wall_time < idle_time))
 			continue;
 
+<<<<<<< HEAD
 		cur_load = 100 * (wall_time - idle_time) / wall_time;
 		j_dbs_info->max_load  = max(cur_load, j_dbs_info->prev_load);
 		j_dbs_info->prev_load = cur_load;
+=======
+		load = 100 * (wall_time - idle_time) / wall_time;
+
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		freq_avg = __cpufreq_driver_getavg(policy, j);
 		if (freq_avg <= 0)
 			freq_avg = policy->cur;
 
+<<<<<<< HEAD
 		load_freq = cur_load * freq_avg;
+=======
+		load_freq = load * freq_avg;
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		if (load_freq > max_load_freq)
 			max_load_freq = load_freq;
 	}
 
+<<<<<<< HEAD
 	for_each_online_cpu(j) {
 		struct cpu_dbs_info_s *j_dbs_info;
 		j_dbs_info = &per_cpu(id_cpu_dbs_info, j);
@@ -1109,6 +1253,8 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 
 	cpufreq_notify_utilization(policy, load_at_max_freq);
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	/* Check for frequency increase */
 	if (max_load_freq > dbs_tuners_ins.up_threshold * policy->cur) {
 		/* If switching to max speed, apply sampling_down_factor */
@@ -1126,6 +1272,7 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 					?(dbs_tuners_ins.two_phase_freq) : (int)(policy->max*80/100))  );
 		} else {
 			/* busy phase */
+<<<<<<< HEAD
 			if (policy->cur < policy->max) {
 				if (sampling_rate_boosted &&
 					(dbs_tuners_ins.sampling_down_factor <
@@ -1137,6 +1284,11 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 						dbs_tuners_ins.sampling_down_factor;
 				}
 			}
+=======
+			if (policy->cur < policy->max)
+				this_dbs_info->rate_mult =
+					dbs_tuners_ins.sampling_down_factor;
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 			dbs_freq_increase(policy, policy->max);
 		}
 		return;
@@ -1149,6 +1301,7 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		}
 	}
 
+<<<<<<< HEAD
 	if (num_online_cpus() > 1) {
 
 		if (max_load_other_cpu >
@@ -1168,6 +1321,8 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		}
 	}
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	/* Check for frequency decrease */
 	/* if we cannot reduce the frequency anymore, break out early */
 	if (policy->cur == policy->min)
@@ -1186,17 +1341,21 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 				(dbs_tuners_ins.up_threshold -
 				 dbs_tuners_ins.down_differential);
 
+<<<<<<< HEAD
 		if (dbs_tuners_ins.boosted &&
 				freq_next < dbs_tuners_ins.boostfreq) {
 			freq_next = dbs_tuners_ins.boostfreq;
 		}
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		/* No longer fully busy, reset rate_mult */
 		this_dbs_info->rate_mult = 1;
 
 		if (freq_next < policy->min)
 			freq_next = policy->min;
 
+<<<<<<< HEAD
 		if (num_online_cpus() > 1) {
 			if (max_load_other_cpu >
 			(dbs_tuners_ins.up_threshold_multi_core -
@@ -1212,6 +1371,8 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 
 		}
 
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		if (!dbs_tuners_ins.powersave_bias) {
 			__cpufreq_driver_target(policy, freq_next,
 					CPUFREQ_RELATION_L);
@@ -1233,16 +1394,25 @@ enum {
 
 enum {	
 	BOOT_CPU = 0,	
+<<<<<<< HEAD
 	NON_BOOT_CPU1,
 	NON_BOOT_CPU2,
 	NON_BOOT_CPU3,
+=======
+	NON_BOOT_CPU
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 };
 
 #define SAMPLE_DURATION_MSEC	(10*1000) // 10 secs >= 10000 msec
 #define ACTIVE_DURATION_MSEC	(3*60*1000) // 3 mins
 #define INACTIVE_DURATION_MSEC	(1*60*1000) // 1 mins
+<<<<<<< HEAD
 #define MAX_ACTIVE_FREQ_LIMIT	30 // %
 #define MAX_INACTIVE_FREQ_LIMIT	20 // %
+=======
+#define MAX_ACTIVE_FREQ_LIMIT	35 // %
+#define MAX_INACTIVE_FREQ_LIMIT	25 // %
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 #define ACTIVE_MAX_FREQ		CONFIG_INTELLI_MAX_ACTIVE_FREQ		// 1.512GHZ
 #define INACTIVE_MAX_FREQ	CONFIG_INTELLI_MAX_INACTIVE_FREQ	// 1.134GHZ
 
@@ -1325,7 +1495,37 @@ unsigned long get_lmf_inactive_load(void)
 }
 #endif
 
+<<<<<<< HEAD
 static unsigned int rq_persist_count = 0;
+=======
+#define NR_FSHIFT	1
+static unsigned int nr_run_thresholds[] = {
+/* 	1,  2 - on-line cpus target */
+	5,  UINT_MAX /* avg run threads * 2 (e.g., 9 = 2.25 threads) */
+	};
+
+static unsigned int nr_run_hysteresis = 2;  /* 0.5 thread */
+static unsigned int nr_run_last;
+
+static unsigned int calculate_thread_stats (void)
+{
+	unsigned int avg_nr_run = avg_nr_running();
+	unsigned int nr_run;
+
+	for (nr_run = 1; nr_run < ARRAY_SIZE(nr_run_thresholds); nr_run++) {
+		unsigned int nr_threshold = nr_run_thresholds[nr_run - 1];
+		if (nr_run_last <= nr_run)
+			nr_threshold += nr_run_hysteresis;
+		if (avg_nr_run <= (nr_threshold << (FSHIFT - NR_FSHIFT)))
+			break;
+	}
+	nr_run_last = nr_run;
+
+	return nr_run;
+}
+
+static unsigned int persist_count = 0;
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 static void do_dbs_timer(struct work_struct *work)
 {
@@ -1335,6 +1535,7 @@ static void do_dbs_timer(struct work_struct *work)
 	int sample_type = dbs_info->sample_type;
 
 	int delay;
+<<<<<<< HEAD
 #ifdef CONFIG_CPUFREQ_ID_PERFLOCK
 	struct cpufreq_policy *policy;
 
@@ -1356,6 +1557,41 @@ static void do_dbs_timer(struct work_struct *work)
 		lmf_browsing_state = true;
 	//pr_info("Run Queue Average: %u\n", rq_info.rq_avg);
 
+=======
+	unsigned int nr_run_stat;
+
+	nr_run_stat = calculate_thread_stats();
+
+#if 1
+	if (cpu == BOOT_CPU && lmf_screen_state) {
+		switch (nr_run_stat) {
+			case 1:
+				if (persist_count > 0)
+					persist_count--;
+
+				if (num_online_cpus() == 2 && persist_count == 0)
+					cpu_down(1);
+				break;
+			case 2:
+				persist_count = 8;
+				if (num_online_cpus() == 1)
+					cpu_up(1);
+				break;
+			default:
+				pr_err("Run Stat Error: Bad value %u\n", nr_run_stat);
+				break;
+		}
+	}
+	if (num_online_cpus() == 2 && rq_info.rq_avg > 38)
+		lmf_browsing_state = false;
+	else
+		lmf_browsing_state = true;
+#endif
+
+	//pr_info("Run Queue Average: %u\n", rq_info.rq_avg);
+
+#ifdef CONFIG_CPUFREQ_LIMIT_MAX_FREQ
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	if (!lmf_browsing_state && lmf_screen_state)
 	{
 		if (cpu == BOOT_CPU)
@@ -1364,11 +1600,21 @@ static void do_dbs_timer(struct work_struct *work)
 			{
 				pr_warn("LMF: disabled!\n");
 				lmf_old_state = false;
+<<<<<<< HEAD
+=======
+#if 0
+				/* wake up the 2nd core */
+				if (num_online_cpus() < 2)
+					cpu_up(1);
+#endif
+
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 			}
 
 			if (!active_state)
 			{
 				/* set freq to 1.5GHz */
+<<<<<<< HEAD
 				//pr_info("LMF: CPU0 set max freq to: %lu\n", lmf_active_max_limit);
 				cpufreq_set_limits(BOOT_CPU, SET_MAX, lmf_active_max_limit);
 				
@@ -1384,6 +1630,16 @@ static void do_dbs_timer(struct work_struct *work)
 					cpufreq_set_limits_off(NON_BOOT_CPU2, SET_MAX, lmf_active_max_limit);
 					cpufreq_set_limits_off(NON_BOOT_CPU3, SET_MAX, lmf_active_max_limit);
 				}
+=======
+				pr_info("LMF: CPU0 set max freq to: %lu\n", lmf_active_max_limit);
+				cpufreq_set_limits(BOOT_CPU, SET_MAX, lmf_active_max_limit);
+				
+				pr_info("LMF: CPU1 set max freq to: %lu\n", lmf_active_max_limit);
+				if (cpu_online(NON_BOOT_CPU))
+					cpufreq_set_limits(NON_BOOT_CPU, SET_MAX, lmf_active_max_limit);
+				else
+					cpufreq_set_limits_off(NON_BOOT_CPU, SET_MAX, lmf_active_max_limit);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 			}
 			
 			jiffies_old = 0;
@@ -1404,7 +1660,11 @@ static void do_dbs_timer(struct work_struct *work)
 		unsigned long load_total  = 0;
 		unsigned long jiffies_cur = jiffies;
 
+<<<<<<< HEAD
 		if (cpu == NON_BOOT_CPU1 || cpu == NON_BOOT_CPU2 || cpu == NON_BOOT_CPU3)
+=======
+		if (cpu == NON_BOOT_CPU)
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		{
 			delay_msec = (dbs_tuners_ins.sampling_rate * dbs_info->rate_mult) / 1000;
 			policy = dbs_info->cur_policy;
@@ -1484,6 +1744,7 @@ static void do_dbs_timer(struct work_struct *work)
 								msecs_limit_total = 0;
 								load_limit_index = 0;
 								active_state = false;
+<<<<<<< HEAD
 
 								/* set freq to 1.0GHz */
 								//pr_info("LMF: CPU0 set max freq to: %lu\n", lmf_inactive_max_limit);
@@ -1501,10 +1762,35 @@ static void do_dbs_timer(struct work_struct *work)
 									cpufreq_set_limits_off(NON_BOOT_CPU2, SET_MAX, lmf_inactive_max_limit);
 									cpufreq_set_limits_off(NON_BOOT_CPU3, SET_MAX, lmf_inactive_max_limit);
 								}
+=======
+#if 0
+								/* wake up the 2nd core */
+								if (num_online_cpus() < 2)
+									cpu_up(1);
+#endif
+								/* set freq to 1.0GHz */
+								pr_info("LMF: CPU0 set max freq to: %lu\n", lmf_inactive_max_limit);
+								cpufreq_set_limits(BOOT_CPU, SET_MAX, lmf_inactive_max_limit);
+								
+								pr_info("LMF: CPU1 set max freq to: %lu\n", lmf_inactive_max_limit);
+								if (cpu_online(NON_BOOT_CPU))
+									cpufreq_set_limits(NON_BOOT_CPU, SET_MAX, lmf_inactive_max_limit);
+								else
+									cpufreq_set_limits_off(NON_BOOT_CPU, SET_MAX, lmf_inactive_max_limit);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 							}
 							else
 							{
 								msecs_limit_total = ACTIVE_DURATION_MSEC; // to prevent overflow
+<<<<<<< HEAD
+=======
+#if 0
+								/* take 2nd core offline */
+								if (num_online_cpus() > 1)
+									cpu_down(1);
+#endif
+
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 							}
 						}
 					}
@@ -1533,6 +1819,7 @@ static void do_dbs_timer(struct work_struct *work)
 								active_state = true;
 
 								/* set freq to 1.5GHz */
+<<<<<<< HEAD
 								//pr_info("LMF: CPU0 set max freq to: %lu\n", lmf_active_max_limit);
 								cpufreq_set_limits(BOOT_CPU, SET_MAX, lmf_active_max_limit);
 								
@@ -1548,6 +1835,16 @@ static void do_dbs_timer(struct work_struct *work)
 									cpufreq_set_limits_off(NON_BOOT_CPU2, SET_MAX, lmf_active_max_limit);
 									cpufreq_set_limits_off(NON_BOOT_CPU3, SET_MAX, lmf_active_max_limit);
 								}
+=======
+								pr_info("LMF: CPU0 set max freq to: %lu\n", lmf_active_max_limit);
+								cpufreq_set_limits(BOOT_CPU, SET_MAX, lmf_active_max_limit);
+								
+								pr_info("LMF: CPU1 set max freq to: %lu\n", lmf_active_max_limit);
+								if (cpu_online(NON_BOOT_CPU))
+									cpufreq_set_limits(NON_BOOT_CPU, SET_MAX, lmf_active_max_limit);
+								else
+									cpufreq_set_limits_off(NON_BOOT_CPU, SET_MAX, lmf_active_max_limit);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 							}
 							else
@@ -1630,6 +1927,7 @@ static int should_io_be_busy(void)
 	    boot_cpu_data.x86_model >= 15)
 		return 1;
 #endif
+<<<<<<< HEAD
 #if defined(CONFIG_ARM)
 	return 1;	/* tread I/O as busy always for ARM */
 #else
@@ -1696,6 +1994,38 @@ bail_incorrect_governor:
 bail_acq_sema_failed:
 	put_online_cpus();
 	return;
+=======
+	return 0;
+}
+
+static void dbs_refresh_callback(struct work_struct *unused)
+{
+	struct cpufreq_policy *policy;
+	struct cpu_dbs_info_s *this_dbs_info;
+	unsigned int cpu = smp_processor_id();
+
+	if (lock_policy_rwsem_write(cpu) < 0)
+		return;
+
+	this_dbs_info = &per_cpu(od_cpu_dbs_info, cpu);
+	policy = this_dbs_info->cur_policy;
+	if (!policy) {
+		/* CPU not using intellidemand governor */
+		unlock_policy_rwsem_write(cpu);
+		return;
+	}
+
+	if (policy->cur < DBS_INPUT_EVENT_MIN_FREQ) {
+		/*
+		pr_info("%s: set cpufreq to DBS_INPUT_EVENT_MIN_FREQ(%d) directly due to input events!\n", __func__, DBS_INPUT_EVENT_MIN_FREQ);
+		*/
+		__cpufreq_driver_target(policy, DBS_INPUT_EVENT_MIN_FREQ,
+					CPUFREQ_RELATION_L);
+		this_dbs_info->prev_cpu_idle = get_cpu_idle_time(cpu,
+				&this_dbs_info->prev_cpu_wall);
+	}
+	unlock_policy_rwsem_write(cpu);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 }
 
 static unsigned int enable_dbs_input_event = 1;
@@ -1712,6 +2042,7 @@ static void dbs_input_event(struct input_handle *handle, unsigned int type,
 			return;
 		}
 
+<<<<<<< HEAD
 		if (current_sampling_rate > BOOSTED_SAMPLING_RATE) {
 			dbs_tuners_ins.sampling_rate = BOOSTED_SAMPLING_RATE;
 			sampling_rate_boosted_time = ktime_to_us(ktime_get());
@@ -1730,12 +2061,27 @@ static int input_dev_filter(const char *input_dev_name)
 		strstr(input_dev_name, "-keypad") ||
 		strstr(input_dev_name, "-nav") ||
 		strstr(input_dev_name, "-oj")) {
+=======
+		for_each_online_cpu(i) {
+			queue_work_on(i, input_wq, &per_cpu(dbs_refresh_work, i));
+		}
+	}
+}
+
+static int input_dev_filter(const char *input_dev_name)
+{
+	if (strstr(input_dev_name, "touchscreen") || strstr(input_dev_name, "-keypad") ||
+		strstr(input_dev_name, "-nav") || strstr(input_dev_name, "-oj")) {
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		return 0;
 	} else {
 		return 1;
 	}
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 static int dbs_input_connect(struct input_handler *handler,
 		struct input_dev *dev, const struct input_device_id *id)
@@ -1743,11 +2089,17 @@ static int dbs_input_connect(struct input_handler *handler,
 	struct input_handle *handle;
 	int error;
 
+<<<<<<< HEAD
 #if 1
 	/* filter out those input_dev that we don't care */
 	if (input_dev_filter(dev->name))
 		return -ENODEV;
 #endif
+=======
+	/* filter out those input_dev that we don't care */
+	if (input_dev_filter(dev->name))
+		return -ENODEV;
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 	handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
 	if (!handle)
@@ -1789,7 +2141,11 @@ static struct input_handler dbs_input_handler = {
 	.event		= dbs_input_event,
 	.connect	= dbs_input_connect,
 	.disconnect	= dbs_input_disconnect,
+<<<<<<< HEAD
 	.name		= "cpufreq_intelli",
+=======
+	.name		= "cpufreq_ond",
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	.id_table	= dbs_ids,
 };
 
@@ -1801,7 +2157,11 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 	unsigned int j;
 	int rc;
 
+<<<<<<< HEAD
 	this_dbs_info = &per_cpu(id_cpu_dbs_info, cpu);
+=======
+	this_dbs_info = &per_cpu(od_cpu_dbs_info, cpu);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 	switch (event) {
 	case CPUFREQ_GOV_START:
@@ -1810,12 +2170,19 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
 		mutex_lock(&dbs_mutex);
 
+<<<<<<< HEAD
 		dbs_chown();
 
 		dbs_enable++;
 		for_each_cpu(j, policy->cpus) {
 			struct cpu_dbs_info_s *j_dbs_info;
 			j_dbs_info = &per_cpu(id_cpu_dbs_info, j);
+=======
+		dbs_enable++;
+		for_each_cpu(j, policy->cpus) {
+			struct cpu_dbs_info_s *j_dbs_info;
+			j_dbs_info = &per_cpu(od_cpu_dbs_info, j);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 			j_dbs_info->cur_policy = policy;
 
 			j_dbs_info->prev_cpu_idle = get_cpu_idle_time(j,
@@ -1853,17 +2220,25 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 				max(min_sampling_rate,
 				    latency * LATENCY_MULTIPLIER);
 			dbs_tuners_ins.io_is_busy = should_io_be_busy();
+<<<<<<< HEAD
 
 			if (dbs_tuners_ins.optimal_freq == 0)
 				dbs_tuners_ins.optimal_freq = policy->min;
 
 			if (dbs_tuners_ins.sync_freq == 0)
 				dbs_tuners_ins.sync_freq = policy->min;
+=======
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		}
 		if (!cpu)
 			rc = input_register_handler(&dbs_input_handler);
 		mutex_unlock(&dbs_mutex);
 
+<<<<<<< HEAD
+=======
+		mutex_init(&this_dbs_info->timer_mutex);
+
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		if (!intellidemand_powersave_bias_setspeed(
 					this_dbs_info->cur_policy,
 					NULL,
@@ -1875,16 +2250,27 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 		dbs_timer_exit(this_dbs_info);
 
 		mutex_lock(&dbs_mutex);
+<<<<<<< HEAD
+=======
+		mutex_destroy(&this_dbs_info->timer_mutex);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 		dbs_enable--;
 		/* If device is being removed, policy is no longer
 		 * valid. */
 		this_dbs_info->cur_policy = NULL;
 		if (!cpu)
 			input_unregister_handler(&dbs_input_handler);
+<<<<<<< HEAD
 		if (!dbs_enable)
 			sysfs_remove_group(cpufreq_global_kobject,
 					   &dbs_attr_group);
 		mutex_unlock(&dbs_mutex);
+=======
+		mutex_unlock(&dbs_mutex);
+		if (!dbs_enable)
+			sysfs_remove_group(cpufreq_global_kobject,
+					   &dbs_attr_group);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 
 		break;
 
@@ -1934,11 +2320,19 @@ static struct early_suspend cpufreq_intellidemand_early_suspend_info = {
 
 static int __init cpufreq_gov_dbs_init(void)
 {
+<<<<<<< HEAD
+=======
+	cputime64_t wall;
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	u64 idle_time;
 	unsigned int i;
 	int cpu = get_cpu();
 
+<<<<<<< HEAD
 	idle_time = get_cpu_idle_time_us(cpu, NULL);
+=======
+	idle_time = get_cpu_idle_time_us(cpu, &wall);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	put_cpu();
 	if (idle_time != -1ULL) {
 		/* Idle micro accounting is supported. Use finer thresholds */
@@ -1963,6 +2357,7 @@ static int __init cpufreq_gov_dbs_init(void)
 		return -EFAULT;
 	}
 	for_each_possible_cpu(i) {
+<<<<<<< HEAD
 		struct cpu_dbs_info_s *this_dbs_info =
 			&per_cpu(id_cpu_dbs_info, i);
 		struct dbs_work_struct *dbs_work =
@@ -1971,6 +2366,9 @@ static int __init cpufreq_gov_dbs_init(void)
 		mutex_init(&this_dbs_info->timer_mutex);
 		INIT_WORK(&dbs_work->work, dbs_refresh_callback);
 		dbs_work->cpu = i;
+=======
+		INIT_WORK(&per_cpu(dbs_refresh_work, i), dbs_refresh_callback);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 	}
 
 #ifdef CONFIG_EARLYSUSPEND
@@ -1981,6 +2379,7 @@ static int __init cpufreq_gov_dbs_init(void)
 
 static void __exit cpufreq_gov_dbs_exit(void)
 {
+<<<<<<< HEAD
 	unsigned int i;
 
 	cpufreq_unregister_governor(&cpufreq_gov_intellidemand);
@@ -1989,6 +2388,9 @@ static void __exit cpufreq_gov_dbs_exit(void)
 			&per_cpu(id_cpu_dbs_info, i);
 		mutex_destroy(&this_dbs_info->timer_mutex);
 	}
+=======
+	cpufreq_unregister_governor(&cpufreq_gov_intellidemand);
+>>>>>>> 5161e71... cpufreq/cpufreq_intellidemand: intellidemand cpufreq
 #ifdef CONFIG_EARLYSUSPEND
 	unregister_early_suspend(&cpufreq_intellidemand_early_suspend_info);
 #endif

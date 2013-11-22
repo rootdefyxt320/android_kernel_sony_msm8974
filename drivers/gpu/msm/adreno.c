@@ -103,6 +103,7 @@ static const struct devfreq_governor_data adreno_governors[] = {
 	{ .name = "msm-adreno-tz", .data = &adreno_tz_data },
 };
 
+
 static const struct kgsl_functable adreno_functable;
 
 static struct adreno_device device_3d0 = {
@@ -1825,6 +1826,7 @@ adreno_probe(struct platform_device *pdev)
 	adreno_ft_init_sysfs(device);
 
 	kgsl_pwrscale_init(&pdev->dev, CONFIG_MSM_ADRENO_DEFAULT_GOVERNOR);
+
 
 
 	device->flags &= ~KGSL_FLAGS_SOFT_RESET;

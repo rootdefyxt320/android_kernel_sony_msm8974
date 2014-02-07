@@ -897,7 +897,7 @@ static int mdss_fb_blank_sub(int blank_mode, struct fb_info *info,
 
 static void mdss_background_unblank(struct work_struct *ws)
 {
-	int ret;
+	int ret = 0;
 	struct msm_fb_data_type *mfd;
 	mfd = container_of(ws, struct msm_fb_data_type, unblank_work);
 

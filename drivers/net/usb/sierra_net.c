@@ -530,6 +530,7 @@ static void sierra_net_kevent(struct work_struct *work)
 						"Send SYNC failed %d\n", err);
 				break;
 			case SIERRA_NET_HIP_EXTENDEDID:
+			    hh.extmsgid.word = 0;
 				netdev_err(dev->net, "Unrecognized HIP msg, "
 					"extmsgid 0x%04x\n", hh.extmsgid.word);
 				break;

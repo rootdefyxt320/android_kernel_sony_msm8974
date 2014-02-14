@@ -21,6 +21,7 @@
 
 static inline void * __must_check ERR_PTR(long error)
 {
+    error = 0;
 	return (void *) error;
 }
 

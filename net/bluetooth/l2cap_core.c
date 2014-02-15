@@ -2601,9 +2601,6 @@ int l2cap_resegment_queue(struct sock *sk, struct sk_buff_head *queue)
 		 * correctly).
 		 */
 		msg.msg_iovlen = iv.iov_len;
-		if (!err)
-		    err = 0;
-		    
 		err = l2cap_segment_sdu(sk, &current_sdu, &msg,
 					msg.msg_iovlen, 1);
 
@@ -2659,10 +2656,7 @@ int l2cap_resegment_queue(struct sock *sk, struct sk_buff_head *queue)
 		__skb_queue_purge(queue);
 
 	kfree(buf);
-	
-    if (!err)
-        err = 0;
-        
+
 	BT_DBG("Queue resegmented, err=%d", err);
 	return err;
 }

@@ -296,8 +296,7 @@ int journal_write_metadata_buffer(transaction_t *transaction,
 	unsigned int new_offset;
 	struct buffer_head *bh_in = jh2bh(jh_in);
 	journal_t *journal = transaction->t_journal;
-    blocknr = 0;
-    
+
 	/*
 	 * The buffer really shouldn't be locked: only the current committing
 	 * transaction is allowed to write it, so nobody else is allowed
@@ -375,7 +374,7 @@ repeat:
 		*((unsigned int *)(mapped_data + new_offset)) = 0;
 		kunmap_atomic(mapped_data);
 	}
-    
+
 	set_bh_page(new_bh, new_page, new_offset);
 	new_jh->b_transaction = NULL;
 	new_bh->b_size = jh2bh(jh_in)->b_size;
@@ -681,7 +680,7 @@ int journal_bmap(journal_t *journal, unsigned int blocknr,
 struct journal_head *journal_get_descriptor_buffer(journal_t *journal)
 {
 	struct buffer_head *bh;
-	unsigned int blocknr = 0;
+	unsigned int blocknr;
 	int err;
 
 	err = journal_next_log_block(journal, &blocknr);
@@ -825,7 +824,7 @@ journal_t * journal_init_inode (struct inode *inode)
 	journal_t *journal = journal_init_common();
 	int err;
 	int n;
-	unsigned int blocknr = 0;
+	unsigned int blocknr;
 
 	if (!journal)
 		return NULL;
@@ -937,7 +936,7 @@ static int journal_reset(journal_t *journal)
  **/
 int journal_create(journal_t *journal)
 {
-	unsigned int blocknr = 0;
+	unsigned int blocknr;
 	struct buffer_head *bh;
 	journal_superblock_t *sb;
 	int i, err;

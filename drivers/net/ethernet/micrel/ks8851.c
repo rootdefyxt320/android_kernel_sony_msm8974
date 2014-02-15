@@ -297,10 +297,7 @@ static unsigned ks8851_rdreg8(struct ks8851_net *ks, unsigned reg)
 	u8 rxb[1];
 
 	ks8851_rdreg(ks, MK_OP(1 << (reg & 3), reg), rxb, 1);
-	if  (rxb[0])
-	    return rxb[0];
-	else
-	    return 0;
+	return rxb[0];
 }
 
 /**

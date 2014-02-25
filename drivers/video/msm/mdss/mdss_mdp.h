@@ -337,6 +337,7 @@ struct mdss_mdp_pipe {
 	u32 ndx;
 	char __iomem *base;
 	u32 ftch_id;
+	u32 xin_id;
 	atomic_t ref_cnt;
 	u32 play_cnt;
 	int pid;
@@ -364,7 +365,6 @@ struct mdss_mdp_pipe {
 	u8 overfetch_disable;
 	u32 transp;
 	u32 bg_color;
-	u8 has_buf;
 
 	struct msm_fb_data_type *mfd;
 	struct mdss_mdp_mixer *mixer;
@@ -386,7 +386,6 @@ struct mdss_mdp_pipe {
 
 struct mdss_mdp_writeback_arg {
 	struct mdss_mdp_data *data;
-	void (*callback_fnc) (void *arg);
 	void *priv_data;
 };
 
@@ -409,6 +408,11 @@ struct mdss_overlay_private {
 	bool mixer_swap;
 
 	int ad_state;
+
+	struct sw_sync_timeline *vsync_timeline;
+	struct mdss_mdp_vsync_handler vsync_retire_handler;
+	struct work_struct retire_work;
+	int retire_cnt;
 
 	bool handoff;
 	u32 splash_mem_addr;
@@ -508,7 +512,7 @@ int mdss_mdp_ctl_setup(struct mdss_mdp_ctl *ctl);
 int mdss_mdp_ctl_split_display_setup(struct mdss_mdp_ctl *ctl,
 		struct mdss_panel_data *pdata);
 int mdss_mdp_ctl_destroy(struct mdss_mdp_ctl *ctl);
-int mdss_mdp_ctl_start(struct mdss_mdp_ctl *ctl);
+int mdss_mdp_ctl_start(struct mdss_mdp_ctl *ctl, bool handoff);
 int mdss_mdp_ctl_stop(struct mdss_mdp_ctl *ctl);
 int mdss_mdp_ctl_intf_event(struct mdss_mdp_ctl *ctl, int event, void *arg);
 int mdss_mdp_perf_calc_pipe(struct mdss_mdp_pipe *pipe,
@@ -563,8 +567,10 @@ int mdss_mdp_hist_lut_config(struct mdp_hist_lut_data *config, u32 *copyback);
 int mdss_mdp_dither_config(struct mdp_dither_cfg_data *config, u32 *copyback);
 int mdss_mdp_gamut_config(struct mdp_gamut_cfg_data *config, u32 *copyback);
 
-int mdss_mdp_histogram_start(struct mdp_histogram_start_req *req);
-int mdss_mdp_histogram_stop(u32 block);
+int mdss_mdp_hist_intr_req(struct mdss_intr *intr, u32 bits, bool en);
+int mdss_mdp_hist_intr_setup(struct mdss_intr *intr, int state);
+int mdss_mdp_hist_start(struct mdp_histogram_start_req *req);
+int mdss_mdp_hist_stop(u32 block);
 int mdss_mdp_hist_collect(struct mdp_histogram_data *hist);
 void mdss_mdp_hist_intr_done(u32 isr);
 
@@ -592,8 +598,8 @@ void mdss_mdp_smp_unreserve(struct mdss_mdp_pipe *pipe);
 void mdss_mdp_smp_release(struct mdss_mdp_pipe *pipe);
 
 int mdss_mdp_pipe_addr_setup(struct mdss_data_type *mdata,
-	struct mdss_mdp_pipe *head, u32 *offsets, u32 *ftch_y_id, u32 type,
-	u32 num_base, u32 len);
+	struct mdss_mdp_pipe *head, u32 *offsets, u32 *ftch_y_id, u32 *xin_id,
+	u32 type, u32 num_base, u32 len);
 int mdss_mdp_mixer_addr_setup(struct mdss_data_type *mdata, u32 *mixer_offsets,
 		u32 *dspp_offsets, u32 *pingpong_offsets, u32 type, u32 len);
 int mdss_mdp_ctl_addr_setup(struct mdss_data_type *mdata, u32 *ctl_offsets,
@@ -602,6 +608,7 @@ int mdss_mdp_ctl_addr_setup(struct mdss_data_type *mdata, u32 *ctl_offsets,
 int mdss_mdp_pipe_destroy(struct mdss_mdp_pipe *pipe);
 int mdss_mdp_pipe_queue_data(struct mdss_mdp_pipe *pipe,
 			     struct mdss_mdp_data *src_data);
+int mdss_mdp_pipe_fetch_halt(struct mdss_mdp_pipe *pipe);
 
 int mdss_mdp_data_check(struct mdss_mdp_data *data,
 			struct mdss_mdp_plane_sizes *ps);

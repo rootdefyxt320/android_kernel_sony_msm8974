@@ -1,4 +1,4 @@
-/* Copyright (c) 2012, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
  * Copyright (C) 2013 Sony Mobile Communications AB.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -217,31 +217,16 @@ void msm_jpeg_hw_we_buffer_update(struct msm_jpeg_hw_buf *p_input,
 	if (pingpong_index == 0) {
 		hw_cmd_p = &hw_cmd_we_ping_update[0];
 		hw_cmd_p->data = p_input->y_buffer_addr;
-#if defined(CONFIG_SONY_CAM_V4L2)
 		JPEG_DBG_HIGH("%s Output pln0 buffer address is %x\n", __func__,
 			p_input->y_buffer_addr);
-#else
-		JPEG_PR_ERR("%s Output pln0 buffer address is %x\n", __func__,
-			p_input->y_buffer_addr);
-#endif
 		msm_jpeg_hw_write(hw_cmd_p++, base);
 		hw_cmd_p->data = p_input->cbcr_buffer_addr;
-#if defined(CONFIG_SONY_CAM_V4L2)
 		JPEG_DBG_HIGH("%s Output pln1 buffer address is %x\n", __func__,
 			p_input->cbcr_buffer_addr);
-#else
-		JPEG_PR_ERR("%s Output pln1 buffer address is %x\n", __func__,
-			p_input->cbcr_buffer_addr);
-#endif
 		msm_jpeg_hw_write(hw_cmd_p++, base);
 		hw_cmd_p->data = p_input->pln2_addr;
-#if defined(CONFIG_SONY_CAM_V4L2)
 		JPEG_DBG_HIGH("%s Output pln2 buffer address is %x\n", __func__,
 			p_input->pln2_addr);
-#else
-		JPEG_PR_ERR("%s Output pln2 buffer address is %x\n", __func__,
-			p_input->pln2_addr);
-#endif
 		msm_jpeg_hw_write(hw_cmd_p++, base);
 	}
 	return;
@@ -351,6 +336,11 @@ int msm_jpeg_hw_exec_cmds(struct msm_jpeg_hw_cmd *hw_cmd_p, uint32_t m_cmds,
 		if (hw_cmd_p->offset > max_size) {
 			JPEG_PR_ERR("%s:%d] %d exceed hw region %d\n", __func__,
 				__LINE__, hw_cmd_p->offset, max_size);
+			return -EFAULT;
+		}
+		if (hw_cmd_p->offset & 0x3) {
+			JPEG_PR_ERR("%s:%d] %d Invalid alignment\n", __func__,
+					__LINE__, hw_cmd_p->offset);
 			return -EFAULT;
 		}
 

@@ -66,11 +66,7 @@ static void __set_pri_clk_src(struct scalable *sc, u32 pri_src_sel)
 
 	regval = get_l2_indirect_reg(sc->l2cpmr_iaddr);
 	regval &= ~0x3;
-	regval |= pri_src_sel;
-	if (sc != &drv.scalable[L2]) {
-		regval &= ~(0x3 << 8);
-		regval |= pri_src_sel << 8;
-	}
+	regval |= (pri_src_sel & 0x3);
 	set_l2_indirect_reg(sc->l2cpmr_iaddr, regval);
 	/* Wait for switch to complete. */
 	mb();
@@ -105,11 +101,7 @@ static void __cpuinit set_sec_clk_src(struct scalable *sc, u32 sec_src_sel)
 
 	regval = get_l2_indirect_reg(sc->l2cpmr_iaddr);
 	regval &= ~(0x3 << 2);
-	regval |= sec_src_sel << 2;
-	if (sc != &drv.scalable[L2]) {
-		regval &= ~(0x3 << 10);
-		regval |= sec_src_sel << 10;
-	}
+	regval |= ((sec_src_sel & 0x3) << 2);
 	set_l2_indirect_reg(sc->l2cpmr_iaddr, regval);
 	/* Wait for switch to complete. */
 	mb();
@@ -761,22 +753,15 @@ static int __cpuinit regulator_init(struct scalable *sc,
 	}
 
 	/*
-	 * Vote for the L2 HFPLL regulators if _this_ CPU's frequency requires
-	 * a corresponding target L2 frequency that needs the L2 an HFPLL.
+	 * Increment the L2 HFPLL regulator refcount if _this_ CPU's frequency
+	 * requires a corresponding target L2 frequency that needs the L2 to
+	 * run off of an HFPLL.
 	 */
-	if (drv.l2_freq_tbl[acpu_level->l2_level].speed.src == HFPLL) {
-		ret = enable_l2_regulators();
-		if (ret) {
-			dev_err(drv.dev, "enable_l2_regulators() failed (%d)\n",
-				ret);
-			goto err_l2_regs;
-		}
-	}
+	if (drv.l2_freq_tbl[acpu_level->l2_level].speed.src == HFPLL)
+		l2_vreg_count++;
 
 	return 0;
 
-err_l2_regs:
-	regulator_disable(sc->vreg[VREG_CORE].reg);
 err_core_conf:
 	regulator_put(sc->vreg[VREG_CORE].reg);
 err_core_get:
@@ -825,8 +810,6 @@ static int __cpuinit init_clock_sources(struct scalable *sc,
 	/* Set PRI_SRC_SEL_HFPLL_DIV2 divider to div-2. */
 	regval = get_l2_indirect_reg(sc->l2cpmr_iaddr);
 	regval &= ~(0x3 << 6);
-	if (sc != &drv.scalable[L2])
-		regval &= ~(0x3 << 14);
 	set_l2_indirect_reg(sc->l2cpmr_iaddr, regval);
 
 	/* Enable and switch to the target clock source. */
@@ -1147,17 +1130,15 @@ void __init get_krait_bin_format_b(void __iomem *base, struct bin_info *bin)
 
 	pte_efuse = readl_relaxed(base);
 	redundant_sel = (pte_efuse >> 24) & 0x7;
-	bin->pvs_rev = (pte_efuse >> 4) & 0x3;
 	bin->speed = pte_efuse & 0x7;
-	/* PVS number is in bits 31, 8, 7, 6 */
-	bin->pvs = ((pte_efuse >> 28) & 0x8) | ((pte_efuse >> 6) & 0x7);
+	bin->pvs = (pte_efuse >> 6) & 0x7;
 
 	switch (redundant_sel) {
 	case 1:
-		bin->speed = (pte_efuse >> 27) & 0xF;
+		bin->speed = (pte_efuse >> 27) & 0x7;
 		break;
 	case 2:
-		bin->pvs = (pte_efuse >> 27) & 0xF;
+		bin->pvs = (pte_efuse >> 27) & 0x7;
 		break;
 	}
 	bin->speed_valid = true;
@@ -1193,20 +1174,13 @@ static struct pvs_table * __init select_freq_plan(
 	if (bin.pvs_valid) {
 		drv.pvs_bin = bin.pvs;
 		dev_info(drv.dev, "ACPU PVS: %d\n", drv.pvs_bin);
-		drv.pvs_rev = bin.pvs_rev;
-		dev_info(drv.dev, "ACPU PVS REVISION: %d\n", drv.pvs_rev);
 	} else {
 		drv.pvs_bin = 0;
 		dev_warn(drv.dev, "ACPU PVS: Defaulting to %d\n",
 			 drv.pvs_bin);
 	}
 
-#ifdef CONFIG_CPU_OC
-	dev_info(drv.dev, "DooMLoRD: Forcing 8974v2 2.3GHz\n");
-	return &params->pvs_tables[drv.pvs_rev][1][drv.pvs_bin];
-#else
-	return &params->pvs_tables[drv.pvs_rev][drv.speed_bin][drv.pvs_bin];
-#endif
+	return &params->pvs_tables[drv.speed_bin][drv.pvs_bin];
 }
 
 static void __init drv_data_init(struct device *dev,

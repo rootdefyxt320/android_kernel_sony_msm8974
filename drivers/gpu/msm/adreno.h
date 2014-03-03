@@ -202,7 +202,11 @@ struct adreno_device {
 	struct adreno_busy_data busy_data;
 
 	struct work_struct start_work;
+	
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 	struct work_struct input_work;
+#endif
+
 	unsigned int ram_cycles_lo;
 };
 

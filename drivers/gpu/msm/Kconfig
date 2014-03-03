@@ -111,3 +111,8 @@ config MSM_KGSL_DISABLE_SHADOW_WRITES
 	bool "Disable register shadow writes for context switches"
 	default n
 	depends on MSM_KGSL
+	
+config MSM_KGSL_WAKE_ON_TOUCH
+    bool "Allow touch events to wake the GPU if it is in slumber"
+    default n
+    

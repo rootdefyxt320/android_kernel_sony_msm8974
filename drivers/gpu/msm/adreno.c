@@ -19,7 +19,9 @@
 #include <linux/of_device.h>
 #include <linux/delay.h>
 #include <linux/of_coresight.h>
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 #include <linux/input.h>
+#endif
 
 #include <mach/socinfo.h>
 #include <mach/msm_bus_board.h>
@@ -79,7 +81,9 @@
 #define KGSL_LOG_LEVEL_DEFAULT 3
 
 static void adreno_start_work(struct work_struct *work);
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 static void adreno_input_work(struct work_struct *work);
+#endif
 
 /*
  * The default values for the simpleondemand governor are 90 and 5,
@@ -153,8 +157,10 @@ static struct adreno_device device_3d0 = {
 	.long_ib_detect = 1,
 	.start_work = __WORK_INITIALIZER(device_3d0.start_work,
 		adreno_start_work),
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 	.input_work = __WORK_INITIALIZER(device_3d0.input_work,
 		adreno_input_work),
+#endif
 };
 
 unsigned int ft_detect_regs[FT_DETECT_REGS_COUNT];
@@ -257,6 +263,7 @@ static const struct {
 /* Nice level for the higher priority GPU start thread */
 static unsigned int _wake_nice = -7;
 
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 /* Number of milliseconds to stay active active after a wake on touch */
 static unsigned int _wake_timeout = 100;
 
@@ -369,6 +376,7 @@ static struct input_handler adreno_input_handler = {
 	.name = "kgsl",
 	.id_table = adreno_input_ids,
 };
+#endif
 
 /**
  * adreno_perfcounter_init: Reserve kernel performance counters
@@ -1833,7 +1841,8 @@ adreno_probe(struct platform_device *pdev)
 	pdata = kgsl_device_get_drvdata(device);
 
 	adreno_coresight_init(pdev);
-
+	
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 	adreno_input_handler.private = device;
 
 	/*
@@ -1842,7 +1851,7 @@ adreno_probe(struct platform_device *pdev)
 	 */
 	if (input_register_handler(&adreno_input_handler))
 		KGSL_DRV_ERR(device, "Unable to register the input handler\n");
-
+#endif
 	return 0;
 
 error_close_device:
@@ -1863,7 +1872,9 @@ static int __devexit adreno_remove(struct platform_device *pdev)
 	device = (struct kgsl_device *)pdev->id_entry->driver_data;
 	adreno_dev = ADRENO_DEVICE(device);
 
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 	input_unregister_handler(&adreno_input_handler);
+#endif
 
 	adreno_coresight_remove(pdev);
 	adreno_profile_close(device);
@@ -2474,6 +2485,7 @@ static int _ft_long_ib_detect_show(struct device *dev,
 				(adreno_dev->long_ib_detect ? 1 : 0));
 }
 
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 /**
  * _wake_timeout_store() - Store the amount of time to extend idle check after
  * wake on touch
@@ -2504,6 +2516,7 @@ static ssize_t _wake_timeout_show(struct device *dev,
 {
 	return snprintf(buf, PAGE_SIZE, "%d\n", _wake_timeout);
 }
+#endif
 
 #define FT_DEVICE_ATTR(name) \
 	DEVICE_ATTR(name, 0644,	_ ## name ## _show, _ ## name ## _store);
@@ -2514,7 +2527,10 @@ FT_DEVICE_ATTR(ft_fast_hang_detect);
 FT_DEVICE_ATTR(ft_long_ib_detect);
 
 static DEVICE_INT_ATTR(wake_nice, 0644, _wake_nice);
+
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 static FT_DEVICE_ATTR(wake_timeout);
+#endif
 
 const struct device_attribute *ft_attr_list[] = {
 	&dev_attr_ft_policy,
@@ -2522,7 +2538,9 @@ const struct device_attribute *ft_attr_list[] = {
 	&dev_attr_ft_fast_hang_detect,
 	&dev_attr_ft_long_ib_detect,
 	&dev_attr_wake_nice.attr,
+#ifdef CONFIG_MSM_KGSL_WAKE_ON_TOUCH
 	&dev_attr_wake_timeout,
+#endif
 	NULL,
 };
 

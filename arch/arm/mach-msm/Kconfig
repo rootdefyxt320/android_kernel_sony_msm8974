@@ -1966,29 +1966,11 @@ config MSM_CPU_FREQ_MIN
 	depends on MSM_CPU_FREQ_SET_MIN_MAX
 	default 245760
 
-<<<<<<< HEAD
-config CPU_VOLTAGE_TABLE
-	bool "Enable CPU Voltage Table via sysfs for adjustements"
-	default n
-	help
-	  Krait User Votlage Control
-
 config INTELLI_PLUG
 	bool "Enable intelli-plug cpu hotplug driver"
 	default n
 	help
 	  Generic Intelli-plug cpu hotplug driver for ARM SOCs
-=======
-endif # CPU_FREQ_MSM
-
-config MSM_DEVFREQ_CPUBW
-	bool "Devfreq device for CPU<->DDR IB/AB BW voting"
-	depends on PM_DEVFREQ
-	select DEVFREQ_GOV_PERFORMANCE
-	select DEVFREQ_GOV_POWERSAVE
-	select DEVFREQ_GOV_USERSPACE
-	select DEVFREQ_GOV_MSM_CPUFREQ
->>>>>>> parent of 3101ba1... added CPU voltage VDD control (thanks to @Faux123) ported to msm8974 platform
 
 config MSM_CPUFREQ_LIMITER
 	tristate "MSM CPU frequency limiter"

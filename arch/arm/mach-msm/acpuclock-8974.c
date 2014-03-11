@@ -55,7 +55,7 @@ static struct scalable scalable[] __initdata = {
 		.hfpll_phys_base = 0xF908A000,
 		.l2cpmr_iaddr = 0x4501,
 		.sec_clk_sel = 2,
-		.vreg[VREG_CORE] = { "krait0",     1100000 },
+		.vreg[VREG_CORE] = { "krait0",     1140000 },
 		.vreg[VREG_MEM]  = { "krait0_mem", 1050000 },
 		.vreg[VREG_DIG]  = { "krait0_dig", LVL_HIGH },
 		.vreg[VREG_HFPLL_A] = { "krait0_hfpll", 1800000 },
@@ -64,7 +64,7 @@ static struct scalable scalable[] __initdata = {
 		.hfpll_phys_base = 0xF909A000,
 		.l2cpmr_iaddr = 0x5501,
 		.sec_clk_sel = 2,
-		.vreg[VREG_CORE] = { "krait1",     1100000 },
+		.vreg[VREG_CORE] = { "krait1",     1140000 },
 		.vreg[VREG_MEM]  = { "krait1_mem", 1050000 },
 		.vreg[VREG_DIG]  = { "krait1_dig", LVL_HIGH },
 		.vreg[VREG_HFPLL_A] = { "krait1_hfpll", 1800000 },
@@ -73,7 +73,7 @@ static struct scalable scalable[] __initdata = {
 		.hfpll_phys_base = 0xF90AA000,
 		.l2cpmr_iaddr = 0x6501,
 		.sec_clk_sel = 2,
-		.vreg[VREG_CORE] = { "krait2",     1100000 },
+		.vreg[VREG_CORE] = { "krait2",     1140000 },
 		.vreg[VREG_MEM]  = { "krait2_mem", 1050000 },
 		.vreg[VREG_DIG]  = { "krait2_dig", LVL_HIGH },
 		.vreg[VREG_HFPLL_A] = { "krait2_hfpll", 1800000 },
@@ -82,7 +82,7 @@ static struct scalable scalable[] __initdata = {
 		.hfpll_phys_base = 0xF90BA000,
 		.l2cpmr_iaddr = 0x7501,
 		.sec_clk_sel = 2,
-		.vreg[VREG_CORE] = { "krait3",     1100000 },
+		.vreg[VREG_CORE] = { "krait3",     1140000 },
 		.vreg[VREG_MEM]  = { "krait3_mem", 1050000 },
 		.vreg[VREG_DIG]  = { "krait3_dig", LVL_HIGH },
 		.vreg[VREG_HFPLL_A] = { "krait3_hfpll", 1800000 },
@@ -280,6 +280,11 @@ static struct l2_level l2_freq_tbl_v2[] __initdata = {
 	[17] = { { 1574400, HFPLL, 1,  82 }, LVL_HIGH, 1050000, 7 },
 	[18] = { { 1651200, HFPLL, 1,  86 }, LVL_HIGH, 1050000, 7 },
 	[19] = { { 1728000, HFPLL, 1,  90 }, LVL_HIGH, 1050000, 8 },
+#ifdef CONFIG_OC_ULTIMATE
+	[20] = { { 1804800, HFPLL, 1,  94 }, LVL_HIGH, 1050000, 8 },
+    [21] = { { 1881600, HFPLL, 1,  98 }, LVL_HIGH, 1050000, 8 },
+    [22] = { { 1958400, HFPLL, 1, 102 }, LVL_HIGH, 1050000, 8 },
+#endif
 	{ }
 };
 

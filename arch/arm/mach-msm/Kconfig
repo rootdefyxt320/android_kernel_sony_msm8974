@@ -1983,6 +1983,12 @@ config MSM_CPUFREQ_LIMITER
 
 	  If in doubt, say N.
 
+config OC_ULTIMATE
+	bool "allow 2.496 GHz max OC option"
+	default n
+	help
+	  Unlock the ultimate Overclock freq speed @ 2.496 GHz
+
 endif # CPU_FREQ_MSM
 
 config MSM_DEVFREQ_CPUBW

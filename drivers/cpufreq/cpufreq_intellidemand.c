@@ -29,7 +29,7 @@
 #include <linux/workqueue.h>
 #include <linux/slab.h>
 
-#ifdef CONFIG_POWERSUSPEND
+#if 0
 #include <linux/powersuspend.h>
 #endif
 
@@ -77,7 +77,7 @@
 #define SUP_HIGH_SLOW_UP_DUR (5)
 #define SUP_FREQ_LEVEL (14)
 
-#ifdef CONFIG_POWERSUSPEND
+#if 0
 static unsigned long stored_sampling_rate;
 #endif
 
@@ -89,7 +89,7 @@ typedef struct{
 	unsigned int freq_idx;
 	unsigned int freq_value;
 } freq_table_idx;
-static freq_table_idx pre_freq_idx[SUP_CORE_NUM] = {};
+freq_table_idx pre_freq_idx[SUP_CORE_NUM] = {};
 
 #endif
 
@@ -105,14 +105,14 @@ typedef struct {
 	unsigned int hist_load_cnt;
 } history_load;
 static void reset_hist(history_load *hist_load);
-static history_load hist_load[SUP_CORE_NUM] = {};
+history_load hist_load[SUP_CORE_NUM] = {};
 
 typedef struct {
 	unsigned int hist_max_load[SUP_HIGH_SLOW_UP_DUR];
 	unsigned int hist_load_cnt;
 } history_load_high;
 static void reset_hist_high(history_load_high *hist_load);
-static history_load_high hist_load_high[SUP_CORE_NUM] = {};
+history_load_high hist_load_high[SUP_CORE_NUM] = {};
 
 #endif
 
@@ -2052,12 +2052,10 @@ static void dbs_input_event(struct input_handle *handle, unsigned int type,
 static int input_dev_filter(const char *input_dev_name)
 {
 	if (strstr(input_dev_name, "touchscreen") ||
-		strstr(input_dev_name, "sec_touchscreen") ||
-		strstr(input_dev_name, "touch_dev") ||
-		strstr(input_dev_name, "-keypad") ||
-		strstr(input_dev_name, "-nav") ||
-		strstr(input_dev_name, "-oj")) {
-		return 0;
+ 	    strstr(input_dev_name, "touch_dev") ||
+ 	    strstr(input_dev_name, "sec-touchscreen") ||
+	    strstr(input_dev_name, "keypad")) {
+		return 0; 
 	} else {
 		return 1;
 	}
@@ -2320,7 +2318,7 @@ bail_acq_sema_failed:
 	return 0;
 }
 
-#ifdef CONFIG_POWERSUSPEND
+#if 0
 static void cpufreq_intellidemand_power_suspend(struct power_suspend *h)
 {
 	mutex_lock(&dbs_mutex);
@@ -2404,7 +2402,7 @@ static int __init cpufreq_gov_dbs_init(void)
 							 "dbs_sync/%d", i);
 	}
 
-#ifdef CONFIG_POWERSUSPEND
+#if 0
 	register_power_suspend(&cpufreq_intellidemand_power_suspend_info);
 #endif
 	return cpufreq_register_governor(&cpufreq_gov_intellidemand);
